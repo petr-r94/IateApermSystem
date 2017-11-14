@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+
+\usepackage{cmap}
+\usepackage[unicode]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{indentfirst}
+\usepackage[left=2.5cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{fancyvrb}
+\usepackage{float}
+
+\begin{document}
+\tableofcontents
+
+\section*{Введение}
+\addcontentsline{toc}{section}{Введение}
+ % описать постановку задачи - какие группы и за какое время надо проанализировать
+
+\section{SQL-запросы}
+% привести запросы для получения списка групп и данных об оценках студентов
+
+\begin{Verbatim}
+select * from sgroup
+where ...
+\end{Verbatim}
+
+\section{Загрузка данных в R}
+
+
+\section{Анализ данных}
+
+% пример вставки рисунка
+\begin{figure}[H]
+\centering
+
+<<fig=TRUE,fig.width=4,fig.height=4>>=
+plot(cars)
+lmc=lm(dist~speed,data=cars)
+abline(lmc,col=2,lwd=2)
+@
+\caption{Зависимость тормозного пути от скорости}
+\label{fig1}
+
+\end{figure}
+
+\end{document}

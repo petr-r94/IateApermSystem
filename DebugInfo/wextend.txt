@@ -1,0 +1,15 @@
+select * from( 
+
+select g.gid, g.shname, s1.stid, s1.discid, p.discname, s1.semnum, s1.overall from( 
+select m.stid, m.discid, m.semnum, sum(m.ktmark) overall from studmark m 
+where m.semnum in (2,3) 
+group by m.stid, m.semnum, m.discid 
+--limit 10 
+) s1 
+join predmet p on p.discid=s1.discid 
+join student s on s1.stid = s.stid 
+join sgroup g on g.gid=s.gid 
+where s.gid in (select gid from sgroup where 
+shname in ('ИС-С07', 'ИС-С08', 'ИС-С09', 'ИС-С10')) 
+order by g.gid, s1.discid, s1.semnum) s2 
+where s2.discname in ('Физика');

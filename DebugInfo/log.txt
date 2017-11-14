@@ -1,0 +1,52 @@
+//Извлекаем все группы по шаблону бакалавры ИС
+SELECT * FROM sgroup WHERE shname LIKE 'ИС-Б__';
+
+//Берем только их GID
+SELECT gid FROM sgroup WHERE shname LIKE 'ИС-Б__';
+
+//Извлекаем всех студентов из выбранных групп (Бакалавры ИС)
+SELECT * FROM student WHERE gid IN (SELECT gid FROM sgroup WHERE shname LIKE 'ИС-Б__');
+
+//Извлекаем информацию об успеваемости конкретного студента за 2-3 семестр
+SELECT stid, discid, semnum, sum(ktmark) FROM studmark
+WHERE stid = '3844' AND (semnum >=2 AND semnum <=3)
+GROUP BY stid, discid, semnum;
+
+//Полная информация об успеваемости студентов выбранных групп за 2-3 семестр
+SELECT stid, discid, semnum, sum(ktmark) FROM studmark
+WHERE stid IN (SELECT stid FROM student WHERE gid IN (SELECT gid FROM sgroup WHERE shname LIKE 'ИС-Б__'))
+AND (semnum >=2 AND semnum <=3)
+GROUP BY stid, discid, semnum; 
+
+
+SELECT stid, semnum, discid, SUM(ktmark) FROM studmark
+	WHERE stid IN (SELECT stid FROM student
+		WHERE gid IN (SELECT gid FROM sgroup
+			WHERE shname LIKE 'ИС-Б__')) 
+	AND (semnum >=2 AND semnum <=3)
+	GROUP BY stid, semnum, discid
+	ORDER BY stid;
+	
+
+
+//Полная информация + имена групп и дисциплин
+===========================================================
+SELECT g.shname, p.discname, info.* FROM (  
+SELECT stid, discid, semnum, sum(ktmark) FROM studmark
+	WHERE stid IN (SELECT stid FROM student
+		WHERE gid IN (SELECT gid FROM sgroup
+			WHERE shname LIKE 'ИС-Б__')) 
+	AND (semnum >=2 AND semnum <=3)
+	GROUP BY stid, discid, semnum
+	ORDER BY stid
+) info
+JOIN predmet p ON p.discid = info.discid
+JOIN (select gid, stid from student) s ON s.stid=info.stid
+JOIN (select gid, shname from sgroup) g ON s.gid=g.gid; 
+
+
+
+
+
+
+

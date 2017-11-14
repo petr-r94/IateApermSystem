@@ -1,0 +1,98 @@
+library(RPostgreSQL)
+# Соединяемся с базой
+drv = dbDriver("PostgreSQL")
+con = dbConnect(drv, dbname = "test", host = "127.0.0.1", user = "test", password = "123")
+
+extractQuery <- "SELECT g.shname, info.gid,info.stid, p.discname, info.discid, info.semnum, info.sum FROM (  
+SELECT stid, discid, semnum, sum(ktmark) FROM studmark
+	WHERE stid IN (SELECT stid FROM student
+		WHERE gid IN (SELECT gid FROM sgroup
+			WHERE shname LIKE 'ИС-Б__')) 
+	AND (semnum >=2 AND semnum <=3)
+	GROUP BY stid, discid, semnum
+	ORDER BY stid
+) info
+JOIN predmet p ON p.discid = info.discid
+JOIN (select gid, stid from student) s ON s.stid=info.stid
+JOIN (select gid, shname from sgroup) g ON s.gid=g.gid; "
+
+data <- dbGetQuery(con, extractQuery)
+write.csv(data, file="./OLAP/extractData.csv", na="")
+
+# Отсоединяемся от базы
+dbDisconnect(con)
+dbUnloadDriver(drv)
+
+					АНАЛИЗ
+=====================================================
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+adata <- tbl_df(read.csv(file = "~/OLAP/extractData.csv")[ ,2:8])
+n_clusters <- 3
+
+cutGroup <- function(agid, asem) {
+  g <- filter(adata, gid == agid & semnum == asem)
+  cg <- g[,c("stid", "discid", "sum")]
+  return(cg)
+}
+
+getDiscName <- function(id) {
+  name <- filter(adata, discid == id)
+  return(pull(name, discname)[1])
+}
+
+isB11sem2 <- dcast(cutGroup(222,2), stid ~ discid)
+isB12sem2 <- dcast(cutGroup(278,2), stid ~ discid)
+# isB13sem2 <- dcast(cutGroup(333,2), stid ~ discid)
+
+k1 <- kmeans(isB11sem2[,2:11],n_clusters)
+k2 <- kmeans(isB12sem2[,2:11],n_clusters)
+
+isB11sem2$cluster <- factor(k1$cluster)
+isB12sem2$cluster <- factor(k2$cluster)
+
+# Cluster Dendrogram
+plot(hclust(dist(isB11sem2[, 2:ncol(isB11sem2)])), xlab="", ylab= "distance", sub="", main=NULL)
+  abline(h=60, col="red", lwd=2, lty=3)
+plot(hclust(dist(isB12sem2[, 2:ncol(isB11sem2)])), xlab="", ylab= "distance", sub="", main=NULL)
+  abline(h=50, col="red", lwd=2, lty=3)
+
+
+# IQR
+  B11 <- cutGroup(222,2)
+  B12 <- cutGroup(278,2)
+  discB11 <- B11 %>% group_by(discid) %>% summarise(n(), IQR(sum))
+  discB12 <- B12 %>% group_by(discid) %>% summarise(n(), IQR(sum))
+  studB11 <- B11 %>% group_by(stid) %>% summarise(n(), median(sum))
+  studB12 <- B12 %>% group_by(stid) %>% summarise(n(), median(sum))
+
+  plot(isB11sem2[,c("6")], isB11sem2[,c("23")], col=k1$cluster,
+    xlab=getDiscName(6), ylab=getDiscName(23))
+  plot(isB12sem2[,c("6")], isB12sem2[,c("23")], col=k2$cluster,
+       xlab=getDiscName(6), ylab=getDiscName(21)) 
+  
+  
+=============================================
+complete.cases - Для удаления N/A значений
+Apply functions
+sapply(li, function(x),mean(x$Sepal.length))
+
+Гипотезы равенства среднего значения двух выборок. параметрические - Стьюдента...
+(Надо проверить подчиняется ли выборка нормальному закону) - Критерий Шапиро
+shapiro.test(x), t.test(x, mu=0), wilcox.test
+Нулевая гипотеза - разницы нет
+
+Если выборка не подчиняется нормальному распределению, то нужны непараметрические методы 
+Гипотеза: о различии успеваемости для 2 групп
+
+
+
+
+
+
+
+
+
+

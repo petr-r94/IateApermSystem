@@ -1,0 +1,6 @@
+
+R -e "library(knitr);knit('reportPR.Rnw')" 
+R -e "knitr::knit2pdf('reportPR.Rnw')"
+
+
+
