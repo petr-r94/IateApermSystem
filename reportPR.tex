@@ -341,9 +341,54 @@ isB13sem2 <- dcast(cutGroup(333,2), stid ~ discid)
 \label{fig4}
 	
 \end{figure}
-
+\newpage
 \subsection{Статистический анализ}
-
+Для статистического анализа использовался ранее выбранный для кластеризации период обучения - 2 семестр групп ИС-Б11 и ИС-Б12.
+\subsubsection{Проверка нормальности распределения данных}
+Для проверка вида распределения данных об успеваемости был применен метод Шапиро-Уилка. P-значения как для ИС-Б11 так и для ИС-Б12 существенно ниже принятого уровня значимости 0.05, поэтому нулевая гипотеза о нормальности распределения оценок была отклонена.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{shapiro.test}\hlstd{(B11}\hlopt{$}\hlstd{sum)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Shapiro-Wilk normality test
+## 
+## data:  B11$sum
+## W = 0.89309, p-value = 2.011e-10
+\end{verbatim}
+\begin{alltt}
+\hlkwd{shapiro.test}\hlstd{(B12}\hlopt{$}\hlstd{sum)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Shapiro-Wilk normality test
+## 
+## data:  B12$sum
+## W = 0.8251, p-value = 1.257e-14
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\subsubsection{Проверка гипотезы об отсутствии статистических различий в успеваемости}
+Так как распределение носит ненормальный характер, то для проверки гипотезы об отсутствии различий в успеваемости групп с разницой поступления в год во втором семестре были использованы непараметрические методы. Так как данные анализируемых групп относятся к одной и той же выборке, то они зависимы. Таким образом, был использован критерий Уилкоксона.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{wilcox.test}\hlstd{(B11}\hlopt{$}\hlstd{sum, B12}\hlopt{$}\hlstd{sum)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Wilcoxon rank sum test with continuity correction
+## 
+## data:  B11$sum and B12$sum
+## W = 17499, p-value = 0.03222
+## alternative hypothesis: true location shift is not equal to 0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+P-значение меньше 0.05, значит, гипотеза о равенстве нулю медианы разницы в выборках была отвергнута. Окончательный вывод: в успеваемости групп ИС-Б11 и ИС-Б12 в рамках 2 семестра есть статистические различия.
 \end{document}
+
 
 

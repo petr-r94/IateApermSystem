@@ -48,6 +48,10 @@ plot(hclust(dist(isB12sem2[, 2:ncol(isB11sem2)])), xlab="", ylab= "distance", su
     xlab=getDiscName(6), ylab=getDiscName(21)) 
   
 # Statistika
+  shapiro.test(B11$sum)
+  shapiro.test(B12$sum)
+  
+  wilcox.test(B11$sum, B12$sum)
   
   
   
